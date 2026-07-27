@@ -1,0 +1,1452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard - AL QAMAR CENTRAL COLLEGE</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <style>
+        /* --- RESET & BASE --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f6f8;
+            color: #333;
+        }
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* --- ADMIN HEADER --- */
+        .admin-header {
+            background: #0a2f44;
+            color: #fff;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        .admin-header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .admin-header h1 {
+            font-size: 1.5rem;
+        }
+        .admin-header h1 span {
+            color: #f4c542;
+        }
+        .admin-header .back-link {
+            color: #f4c542;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        .admin-header .back-link:hover {
+            color: #fff;
+        }
+        .admin-header .logout-btn {
+            background: #e74c3c;
+            color: #fff;
+            border: none;
+            padding: 0.4rem 1.2rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        .admin-header .logout-btn:hover {
+            background: #c0392b;
+        }
+
+        /* --- LOGIN OVERLAY --- */
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 47, 68, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+        .login-overlay.hidden {
+            display: none;
+        }
+        .login-box {
+            background: #fff;
+            padding: 3rem;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .login-box h2 {
+            color: #0a2f44;
+            margin-bottom: 0.5rem;
+        }
+        .login-box h2 span {
+            color: #f4c542;
+        }
+        .login-box p {
+            color: #888;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+        }
+        .login-box .form-group {
+            margin-bottom: 1.2rem;
+            text-align: left;
+        }
+        .login-box .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+            color: #0a2f44;
+        }
+        .login-box .form-group input {
+            width: 100%;
+            padding: 0.7rem 1rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        .login-box .form-group input:focus {
+            outline: none;
+            border-color: #f4c542;
+        }
+        .login-box .login-btn {
+            width: 100%;
+            padding: 0.8rem;
+            background: #0a2f44;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .login-box .login-btn:hover {
+            background: #f4c542;
+            color: #0a2f44;
+        }
+        .login-error {
+            color: #e74c3c;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+        .login-error.show {
+            display: block;
+        }
+
+        /* --- DASHBOARD STATS --- */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        .stat-card {
+            background: #fff;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+            text-align: center;
+            border-bottom: 4px solid #f4c542;
+        }
+        .stat-card .number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #0a2f44;
+        }
+        .stat-card .label {
+            color: #888;
+            font-size: 0.9rem;
+        }
+        .stat-card i {
+            font-size: 2rem;
+            color: #f4c542;
+            margin-bottom: 0.5rem;
+        }
+
+        /* --- ADMIN CONTROLS --- */
+        .admin-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            background: #fff;
+            padding: 1rem;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        }
+        .admin-controls .search-box {
+            display: flex;
+            gap: 0.5rem;
+            flex: 1;
+            max-width: 400px;
+        }
+        .admin-controls .search-box input {
+            flex: 1;
+            padding: 0.6rem 1rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        .admin-controls .search-box input:focus {
+            outline: none;
+            border-color: #f4c542;
+        }
+        .admin-controls .search-box button {
+            padding: 0.6rem 1.2rem;
+            background: #0a2f44;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .admin-controls .search-box button:hover {
+            background: #f4c542;
+            color: #0a2f44;
+        }
+        .admin-controls .action-buttons {
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+        }
+        .admin-controls .action-buttons button {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .btn-export {
+            background: #27ae60;
+            color: #fff;
+        }
+        .btn-export:hover {
+            background: #219a52;
+        }
+        .btn-clear {
+            background: #e74c3c;
+            color: #fff;
+        }
+        .btn-clear:hover {
+            background: #c0392b;
+        }
+        .btn-refresh {
+            background: #3498db;
+            color: #fff;
+        }
+        .btn-refresh:hover {
+            background: #2980b9;
+        }
+
+        /* --- MEMBERS TABLE --- */
+        .table-container {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        thead {
+            background: #0a2f44;
+            color: #fff;
+        }
+        th {
+            padding: 1rem;
+            text-align: left;
+            white-space: nowrap;
+        }
+        td {
+            padding: 0.8rem 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        tr:hover {
+            background: #f8f9fa;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 0.2rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: #d4edda;
+            color: #155724;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #888;
+        }
+        .empty-state i {
+            font-size: 3rem;
+            color: #ddd;
+            margin-bottom: 1rem;
+        }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 768px) {
+            .admin-header h1 {
+                font-size: 1.2rem;
+            }
+            .admin-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .admin-controls .search-box {
+                max-width: 100%;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .login-box {
+                padding: 2rem;
+                margin: 0 1rem;
+            }
+            th, td {
+                padding: 0.5rem;
+                font-size: 0.8rem;
+            }
+        }
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- LOGIN OVERLAY -->
+    <div class="login-overlay" id="loginOverlay">
+        <div class="login-box">
+            <h2>Admin <span>Login</span></h2>
+            <p>Enter your credentials to access the dashboard</p>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="adminUser">Username</label>
+                    <input type="text" id="adminUser" placeholder="Enter username" required />
+                </div>
+                <div class="form-group">
+                    <label for="adminPass">Password</label>
+                    <input type="password" id="adminPass" placeholder="Enter password" required />
+                </div>
+                <div class="login-error" id="loginError">Invalid username or password. Please try again.</div>
+                <button type="submit" class="login-btn"><i class="fas fa-sign-in-alt"></i> Login</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ADMIN HEADER -->
+    <header class="admin-header" id="adminHeader">
+        <div class="container">
+            <h1><i class="fas fa-user-shield"></i> <span>Admin</span> Dashboard</h1>
+            <div>
+                <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to Website</a>
+                <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- DASHBOARD CONTENT -->
+    <div class="container" id="dashboardContent">
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <i class="fas fa-users"></i>
+                <div class="number" id="totalMembers">0</div>
+                <div class="label">Total Members</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-calendar-check"></i>
+                <div class="number" id="todayMembers">0</div>
+                <div class="label">Registered Today</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-clock"></i>
+                <div class="number" id="weekMembers">0</div>
+                <div class="label">This Week</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-graduation-cap"></i>
+                <div class="number" id="batchCount">0</div>
+                <div class="label">Batches</div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="admin-controls">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search by name, batch, or email..." />
+                <button id="searchBtn"><i class="fas fa-search"></i></button>
+                <button id="clearSearchBtn" style="background:#95a5a6;"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="action-buttons">
+                <button class="btn-export" id="exportCSV"><i class="fas fa-file-csv"></i> Export CSV</button>
+                <button class="btn-export" id="exportJSON" style="background:#8e44ad;"><i class="fas fa-file-code"></i> Export JSON</button>
+                <button class="btn-refresh" id="refreshBtn"><i class="fas fa-sync-alt"></i> Refresh</button>
+                <button class="btn-clear" id="clearAllBtn"><i class="fas fa-trash"></i> Clear All</button>
+            </div>
+        </div>
+
+        <!-- Members Table -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Batch</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Occupation</th>
+                        <th>Registered</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="membersTableBody">
+                    <tr>
+                        <td colspan="9">
+                            <div class="empty-state">
+                                <i class="fas fa-user-graduate"></i>
+                                <p>No members registered yet. Share the website to get more members!</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p style="text-align: right; margin-top: 0.5rem; font-size: 0.8rem; color: #888;">
+            <i class="fas fa-database"></i> Data stored locally in your browser
+        </p>
+    </div>
+
+    <!-- FOOTER -->
+    <footer style="background: #0a2f44; color: #fff; text-align: center; padding: 1.5rem 0; margin-top: 2rem;">
+        <div class="container">
+            <p>&copy; 2026 AL QAMAR CENTRAL COLLEGE - Admin Dashboard</p>
+        </div>
+    </footer>
+
+    <script>
+        // ==========================================
+        // ADMIN LOGIN SYSTEM
+        // ==========================================
+        const ADMIN_CREDENTIALS = {
+            username: 'admin',
+            password: 'alqamar2026'  // Change this to your own password
+        };
+
+        let isLoggedIn = false;
+
+        // Check if already logged in (session)
+        if (sessionStorage.getItem('adminLoggedIn') === 'true') {
+            isLoggedIn = true;
+            document.getElementById('loginOverlay').classList.add('hidden');
+        }
+
+        // Login form
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const user = document.getElementById('adminUser').value;
+            const pass = document.getElementById('adminPass').value;
+
+            if (user === ADMIN_CREDENTIALS.username && pass === ADMIN_CREDENTIALS.password) {
+                isLoggedIn = true;
+                sessionStorage.setItem('adminLoggedIn', 'true');
+                document.getElementById('loginOverlay').classList.add('hidden');
+                document.getElementById('loginError').classList.remove('show');
+                loadMembers();
+            } else {
+                document.getElementById('loginError').classList.add('show');
+            }
+        });
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            sessionStorage.removeItem('adminLoggedIn');
+            isLoggedIn = false;
+            document.getElementById('loginOverlay').classList.remove('hidden');
+            document.getElementById('adminUser').value = '';
+            document.getElementById('adminPass').value = '';
+            document.getElementById('loginError').classList.remove('show');
+        });
+
+        // ==========================================
+        // MEMBERS DATA MANAGEMENT
+        // ==========================================
+
+        // Get all members from localStorage
+        function getMembers() {
+            try {
+                return JSON.parse(localStorage.getItem('alumniMembers')) || [];
+            } catch {
+                return [];
+            }
+        }
+
+        // Save members to localStorage
+        function saveMembers(members) {
+            localStorage.setItem('alumniMembers', JSON.stringify(members));
+        }
+
+        // Load and display members
+        function loadMembers(searchTerm = '') {
+            if (!isLoggedIn) return;
+
+            let members = getMembers();
+            const search = searchTerm.toLowerCase().trim();
+
+            if (search) {
+                members = members.filter(m =>
+                    m.name.toLowerCase().includes(search) ||
+                    m.batch.toLowerCase().includes(search) ||
+                    m.email.toLowerCase().includes(search) ||
+                    m.phone.toLowerCase().includes(search) ||
+                    m.occupation.toLowerCase().includes(search)
+                );
+            }
+
+            // Update stats
+            document.getElementById('totalMembers').textContent = getMembers().length;
+
+            // Today's registrations
+            const today = new Date().toDateString();
+            const todayMembers = getMembers().filter(m =>
+                new Date(m.registeredAt).toDateString() === today
+            );
+            document.getElementById('todayMembers').textContent = todayMembers.length;
+
+            // This week's registrations
+            const weekAgo = new Date();
+            weekAgo.setDate(weekAgo.getDate() - 7);
+            const weekMembers = getMembers().filter(m =>
+                new Date(m.registeredAt) >= weekAgo
+            );
+            document.getElementById('weekMembers').textContent = weekMembers.length;
+
+            // Unique batches
+            const batches = new Set(getMembers().map(m => m.batch));
+            document.getElementById('batchCount').textContent = batches.size;
+
+            // Render table
+            const tbody = document.getElementById('membersTableBody');
+            if (members.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9">
+                            <div class="empty-state">
+                                <i class="fas fa-user-graduate"></i>
+                                <p>${search ? 'No members found matching your search.' : 'No members registered yet. Share the website to get more members!'}</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = members.map((m, index) => `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td><strong>${m.name}</strong></td>
+                    <td><span class="status-badge">${m.batch}</span></td>
+                    <td><a href="mailto:${m.email}">${m.email}</a></td>
+                    <td>${m.phone}</td>
+                    <td>${m.occupation}</td>
+                    <td style="font-size:0.8rem; color:#888;">${m.registeredAt || 'N/A'}</td>
+                    <td><span class="status-badge"><i class="fas fa-check-circle"></i> Active</span></td>
+                    <td>
+                        <button onclick="deleteMember('${m.id}')" style="background:#e74c3c; color:#fff; border:none; padding:0.3rem 0.7rem; border-radius:5px; cursor:pointer;">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Delete a single member
+        function deleteMember(id) {
+            if (!confirm('Are you sure you want to delete this member?')) return;
+            let members = getMembers();
+            members = members.filter(m => m.id != id);
+            saveMembers(members);
+            loadMembers(document.getElementById('searchInput').value);
+        }
+        window.deleteMember = deleteMember; // Make it globally accessible
+
+        // Clear all members
+        document.getElementById('clearAllBtn').addEventListener('click', function() {
+            if (!confirm('⚠️ WARNING: This will delete ALL member data. Are you sure?')) return;
+            if (!confirm('Final confirmation: Delete all members?')) return;
+            saveMembers([]);
+            loadMembers();
+        });
+
+        // Search
+        document.getElementById('searchBtn').addEventListener('click', function() {
+            loadMembers(document.getElementById('searchInput').value);
+        });
+
+        document.getElementById('searchInput').addEventListener('keyup', function(e) {
+            if (e.key === 'Enter') {
+                loadMembers(this.value);
+            }
+        });
+
+        document.getElementById('clearSearchBtn').addEventListener('click', function() {
+            document.getElementById('searchInput').value = '';
+            loadMembers('');
+        });
+
+        // Refresh
+        document.getElementById('refreshBtn').addEventListener('click', function() {
+            loadMembers(document.getElementById('searchInput').value);
+        });
+
+        // Export CSV
+        document.getElementById('exportCSV').addEventListener('click', function() {
+            const members = getMembers();
+            if (members.length === 0) {
+                alert('No data to export.');
+                return;
+            }
+
+            const headers = ['Name', 'Batch', 'Email', 'Phone', 'Occupation', 'Message', 'Registered'];
+            const rows = members.map(m => [
+                m.name, m.batch, m.email, m.phone, m.occupation, m.message, m.registeredAt
+            ]);
+
+            let csv = headers.join(',') + '\n';
+            rows.forEach(row => {
+                csv += row.map(cell => `"${cell}"`).join(',') + '\n';
+            });
+
+            downloadFile(csv, 'alumni_members.csv', 'text/csv');
+        });
+
+        // Export JSON
+        document.getElementById('exportJSON').addEventListener('click', function() {
+            const members = getMembers();
+            if (members.length === 0) {
+                alert('No data to export.');
+                return;
+            }
+            const json = JSON.stringify(members, null, 2);
+            downloadFile(json, 'alumni_members.json', 'application/json');
+        });
+
+        // Helper: Download file
+        function downloadFile(content, filename, mimeType) {
+            const blob = new Blob([content], { type: mimeType });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(link.href);
+        }
+
+        // ==========================================
+        // INITIALIZATION
+        // ==========================================
+
+        // Load members on page load if logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            if (isLoggedIn) {
+                loadMembers();
+            }
+        });
+
+        // Also load when the overlay hides (after login)
+        const observer = new MutationObserver(function() {
+            if (document.getElementById('loginOverlay').classList.contains('hidden') && isLoggedIn) {
+                loadMembers();
+            }
+        });
+        observer.observe(document.getElementById('loginOverlay'), { attributes: true, attributeFilter: ['class'] });
+    </script>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AL QAMAR CENTRAL COLLEGE</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <style>
+        /* --- RESET & BASE --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* --- HEADER --- */
+        header {
+            background: #0a2f44;
+            color: #fff;
+            padding: 0.8rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.4rem;
+            font-weight: bold;
+        }
+        .logo img {
+            height: 50px;
+            width: auto;
+        }
+        .logo span {
+            color: #f4c542;
+        }
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 1.5rem;
+        }
+        .nav-links a {
+            color: #fff;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        .nav-links a:hover {
+            color: #f4c542;
+        }
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background: #fff;
+            margin: 3px 0;
+            transition: 0.3s;
+        }
+
+        /* --- HERO --- */
+        .hero {
+            background: linear-gradient(135deg, #0a2f44, #1a5276);
+            color: #fff;
+            padding: 5rem 0;
+            text-align: center;
+        }
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+        .hero h2 {
+            font-size: 1.8rem;
+            font-weight: 300;
+            margin-bottom: 1.5rem;
+            color: #f4c542;
+        }
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto 2rem;
+        }
+        .btn {
+            display: inline-block;
+            background: #f4c542;
+            color: #0a2f44;
+            padding: 0.8rem 2rem;
+            border-radius: 30px;
+            font-weight: bold;
+            transition: background 0.3s, transform 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background: #e0b03a;
+            transform: scale(1.02);
+        }
+
+        /* --- SECTION TITLES --- */
+        section {
+            padding: 4rem 0;
+        }
+        .section-title {
+            text-align: center;
+            font-size: 2.2rem;
+            margin-bottom: 2.5rem;
+            color: #0a2f44;
+        }
+        .section-title span {
+            color: #f4c542;
+        }
+
+        /* --- ABOUT --- */
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            align-items: center;
+        }
+        .about-grid img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .about-text h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: #0a2f44;
+        }
+
+        /* --- PROGRAMS --- */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+        .card {
+            background: #f8f9fa;
+            padding: 2rem 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+            border-bottom: 4px solid #f4c542;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .card i {
+            font-size: 2.5rem;
+            color: #0a2f44;
+            margin-bottom: 1rem;
+        }
+        .card h3 {
+            margin-bottom: 0.5rem;
+            color: #0a2f44;
+        }
+
+        /* --- OLD BOYS / ALUMNI MEMBERSHIP --- */
+        .alumni-section {
+            background: linear-gradient(135deg, #f4f6f8, #e8ecf1);
+        }
+        .alumni-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 3rem;
+            align-items: start;
+        }
+        .alumni-features {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+        .alumni-feature {
+            background: #fff;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+            border-left: 4px solid #f4c542;
+            transition: transform 0.3s;
+        }
+        .alumni-feature:hover {
+            transform: translateX(5px);
+        }
+        .alumni-feature i {
+            font-size: 1.8rem;
+            color: #0a2f44;
+            margin-bottom: 0.5rem;
+        }
+        .alumni-feature h4 {
+            color: #0a2f44;
+            margin-bottom: 0.3rem;
+        }
+        .alumni-feature p {
+            font-size: 0.95rem;
+            color: #666;
+        }
+
+        .alumni-form {
+            background: #fff;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        .alumni-form h3 {
+            color: #0a2f44;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-size: 1.5rem;
+        }
+        .alumni-form h3 span {
+            color: #f4c542;
+        }
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+            color: #0a2f44;
+            font-size: 0.9rem;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.7rem 1rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #f4c542;
+        }
+        .form-group textarea {
+            height: 80px;
+            resize: vertical;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        .submit-btn {
+            width: 100%;
+            padding: 0.9rem;
+            background: #0a2f44;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+        }
+        .submit-btn:hover {
+            background: #f4c542;
+            color: #0a2f44;
+            transform: scale(1.02);
+        }
+
+        .alumni-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #0a2f44;
+            border-radius: 10px;
+            color: #fff;
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-item .number {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: #f4c542;
+        }
+        .stat-item .label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* --- CONSTITUTION --- */
+        .constitution-link {
+            background: #f4c542;
+            padding: 2rem;
+            text-align: center;
+            border-radius: 10px;
+            margin-top: 2rem;
+        }
+        .constitution-link a {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #0a2f44;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .constitution-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* --- CONTACT --- */
+        .contact-info {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            flex-wrap: wrap;
+            text-align: center;
+        }
+        .contact-info i {
+            font-size: 2rem;
+            color: #0a2f44;
+            margin-bottom: 0.5rem;
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            background: #0a2f44;
+            color: #fff;
+            text-align: center;
+            padding: 1.5rem 0;
+        }
+        footer .social-links {
+            margin-top: 0.5rem;
+        }
+        footer .social-links a {
+            color: #fff;
+            margin: 0 10px;
+            font-size: 1.3rem;
+            transition: color 0.3s;
+        }
+        footer .social-links a:hover {
+            color: #f4c542;
+        }
+
+        /* --- SUCCESS MESSAGE --- */
+        .success-message {
+            display: none;
+            background: #d4edda;
+            color: #155724;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border-left: 4px solid #28a745;
+            text-align: center;
+        }
+        .success-message.show {
+            display: block;
+        }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                width: 100%;
+                flex-direction: column;
+                text-align: center;
+                padding: 1rem 0;
+                gap: 0.8rem;
+            }
+            .nav-links.active {
+                display: flex;
+            }
+            .hamburger {
+                display: flex;
+            }
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+            .hero h2 {
+                font-size: 1.4rem;
+            }
+            .about-grid {
+                grid-template-columns: 1fr;
+            }
+            .contact-info {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+            .logo img {
+                height: 40px;
+            }
+            .logo {
+                font-size: 1rem;
+            }
+            .alumni-grid {
+                grid-template-columns: 1fr;
+            }
+            .alumni-features {
+                grid-template-columns: 1fr;
+            }
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            .alumni-stats {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER - NO ADMIN LINK VISIBLE -->
+    <header>
+        <nav class="container">
+            <div class="logo">
+                <img src="logo.png" alt="AL QAMAR CENTRAL COLLEGE Logo" />
+                <span>AL QAMAR <span>CENTRAL</span></span>
+            </div>
+            <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+                <span></span><span></span><span></span>
+            </button>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#about">About</a></li>
+                <li><a href="#programs">Programs</a></li>
+                <li><a href="#alumni">Old Boys</a></li>
+                <li><a href="#contact">Contact</a></li>
+                <li><a href="#constitution">Constitution</a></li>
+                <!-- ADMIN LINK IS REMOVED - ONLY YOU KNOW ABOUT admin.html -->
+            </ul>
+        </nav>
+    </header>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="container">
+            <h1>AL QAMAR CENTRAL COLLEGE</h1>
+            <h2>அல் கமர் மத்திய கல்லூரி</h2>
+            <p>Empowering young minds with knowledge, values, and excellence. Join us in shaping the future.</p>
+            <a href="#alumni" class="btn">Join Old Boys Association</a>
+        </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="about">
+        <div class="container">
+            <h2 class="section-title">About <span>Us</span></h2>
+            <div class="about-grid">
+                <img src="school-photo.jpg" alt="AL QAMAR CENTRAL COLLEGE - School Building" />
+                <div class="about-text">
+                    <h3>Welcome to AL QAMAR CENTRAL COLLEGE</h3>
+                    <p>We are a dedicated educational institution committed to academic excellence and holistic development. Our mission is to nurture responsible, confident, and compassionate individuals.</p>
+                    <p>With a rich history and a vibrant community, we strive to create a supportive environment where every student can thrive.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PROGRAMS -->
+    <section id="programs" style="background: #f4f6f8;">
+        <div class="container">
+            <h2 class="section-title">Our <span>Programs</span></h2>
+            <div class="card-grid">
+                <div class="card">
+                    <i class="fas fa-graduation-cap"></i>
+                    <h3>Academics</h3>
+                    <p>Strong curriculum from primary to secondary level, focusing on STEM, languages, and arts.</p>
+                </div>
+                <div class="card">
+                    <i class="fas fa-futbol"></i>
+                    <h3>Sports</h3>
+                    <p>Encouraging physical fitness and teamwork through cricket, football, athletics, and more.</p>
+                </div>
+                <div class="card">
+                    <i class="fas fa-paint-brush"></i>
+                    <h3>Arts & Culture</h3>
+                    <p>Celebrating creativity with music, dance, drama, and cultural events throughout the year.</p>
+                </div>
+                <div class="card">
+                    <i class="fas fa-hands-helping"></i>
+                    <h3>Community</h3>
+                    <p>Instilling values of service and leadership through community engagement and social projects.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- OLD BOYS / ALUMNI MEMBERSHIP SECTION -->
+    <section id="alumni" class="alumni-section">
+        <div class="container">
+            <h2 class="section-title">Old Boys <span>Association</span></h2>
+            <p style="text-align: center; max-width: 700px; margin: 0 auto 2.5rem; font-size: 1.1rem; color: #555;">
+                Reconnect with your alma mater, support current students, and be part of a lifelong brotherhood.
+                Join the AL QAMAR CENTRAL COLLEGE Old Boys Association today!
+            </p>
+
+            <div class="alumni-stats">
+                <div class="stat-item">
+                    <div class="number" id="memberCount">0</div>
+                    <div class="label">Members</div>
+                </div>
+                <div class="stat-item">
+                    <div class="number">25+</div>
+                    <div class="label">Years of Excellence</div>
+                </div>
+                <div class="stat-item">
+                    <div class="number">50+</div>
+                    <div class="label">Events per Year</div>
+                </div>
+                <div class="stat-item">
+                    <div class="number">100%</div>
+                    <div class="label">Community Impact</div>
+                </div>
+            </div>
+
+            <div class="alumni-grid" style="margin-top: 2.5rem;">
+                <div>
+                    <h3 style="color: #0a2f44; margin-bottom: 1.5rem; font-size: 1.6rem;">
+                        Why Join <span style="color: #f4c542;">Old Boys</span>?
+                    </h3>
+                    <div class="alumni-features">
+                        <div class="alumni-feature">
+                            <i class="fas fa-users"></i>
+                            <h4>Network & Connect</h4>
+                            <p>Connect with old friends and build professional networks across the globe.</p>
+                        </div>
+                        <div class="alumni-feature">
+                            <i class="fas fa-hand-holding-heart"></i>
+                            <h4>Give Back</h4>
+                            <p>Support scholarships, infrastructure, and mentorship programs for current students.</p>
+                        </div>
+                        <div class="alumni-feature">
+                            <i class="fas fa-calendar-alt"></i>
+                            <h4>Events & Reunions</h4>
+                            <p>Attend annual reunions, sports meets, cultural events, and exclusive gatherings.</p>
+                        </div>
+                        <div class="alumni-feature">
+                            <i class="fas fa-bullhorn"></i>
+                            <h4>Stay Updated</h4>
+                            <p>Get news about the school and fellow alumni through our monthly newsletter.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alumni-form">
+                    <h3>Register <span>Now</span></h3>
+                    <div class="success-message" id="successMessage">
+                        <i class="fas fa-check-circle"></i> Thank you! You've been added to the Old Boys Association.
+                    </div>
+                    <form id="alumniForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="fullName">Full Name</label>
+                                <input type="text" id="fullName" placeholder="Enter your full name" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="batchYear">Batch Year</label>
+                                <select id="batchYear" required>
+                                    <option value="">Select Year</option>
+                                    <option value="2026">2026</option>
+                                    <option value="2025">2025</option>
+                                    <option value="2024">2024</option>
+                                    <option value="2023">2023</option>
+                                    <option value="2022">2022</option>
+                                    <option value="2021">2021</option>
+                                    <option value="2020">2020</option>
+                                    <option value="2019">2019</option>
+                                    <option value="2018">2018</option>
+                                    <option value="2017">2017</option>
+                                    <option value="2016">2016</option>
+                                    <option value="2015">2015</option>
+                                    <option value="2014">2014</option>
+                                    <option value="2013">2013</option>
+                                    <option value="2012">2012</option>
+                                    <option value="2011">2011</option>
+                                    <option value="2010">2010</option>
+                                    <option value="2000s">2000-2009</option>
+                                    <option value="1990s">1990-1999</option>
+                                    <option value="1980s">1980-1989</option>
+                                    <option value="1970s">1970-1979</option>
+                                    <option value="1960s">1960-1969</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" placeholder="Enter your email" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone Number</label>
+                            <input type="tel" id="phone" placeholder="Enter your phone number" />
+                        </div>
+                        <div class="form-group">
+                            <label for="occupation">Current Occupation</label>
+                            <input type="text" id="occupation" placeholder="e.g., Engineer, Teacher, Doctor" />
+                        </div>
+                        <div class="form-group">
+                            <label for="message">Message (Optional)</label>
+                            <textarea id="message" placeholder="Any special message or how you'd like to contribute..."></textarea>
+                        </div>
+                        <button type="submit" class="submit-btn">
+                            <i class="fas fa-user-plus"></i> Join Old Boys Association
+                        </button>
+                    </form>
+                    <p style="text-align: center; margin-top: 1rem; font-size: 0.85rem; color: #888;">
+                        <i class="fas fa-lock"></i> Your information is secure and private.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CONSTITUTION -->
+    <section id="constitution">
+        <div class="container">
+            <div class="constitution-link">
+                <a href="#" target="_blank">
+                    <i class="fas fa-book-open"></i> Read the constitution / யாப்பை வாசிப்பதற்கு
+                </a>
+                <p style="margin-top: 10px; color: #0a2f44; font-weight: 500;">(Replace # with the link to your constitution PDF or page)</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" style="background: #f4f6f8;">
+        <div class="container">
+            <h2 class="section-title">Get in <span>Touch</span></h2>
+            <div class="contact-info">
+                <div>
+                    <i class="fas fa-map-marker-alt"></i>
+                    <p>AL QAMAR CENTRAL COLLEGE, Your City</p>
+                </div>
+                <div>
+                    <i class="fas fa-phone"></i>
+                    <p>+94 77 123 4567</p>
+                </div>
+                <div>
+                    <i class="fas fa-envelope"></i>
+                    <p>info@alqamarcentral.lk</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 AL QAMAR CENTRAL COLLEGE. All rights reserved.</p>
+            <div class="social-links">
+                <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+                <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT -->
+    <script>
+        // --- Mobile Menu Toggle ---
+        const hamburger = document.getElementById('hamburger');
+        const navLinks = document.getElementById('navLinks');
+
+        hamburger.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('active');
+            });
+        });
+
+        // --- Alumni Form Submission ---
+        document.getElementById('alumniForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Get form values
+            const member = {
+                id: Date.now(),
+                name: document.getElementById('fullName').value,
+                batch: document.getElementById('batchYear').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value || 'N/A',
+                occupation: document.getElementById('occupation').value || 'N/A',
+                message: document.getElementById('message').value || 'N/A',
+                registeredAt: new Date().toLocaleString()
+            };
+
+            // Get existing members from localStorage
+            let members = JSON.parse(localStorage.getItem('alumniMembers')) || [];
+            members.push(member);
+            localStorage.setItem('alumniMembers', JSON.stringify(members));
+
+            // Update member count
+            updateMemberCount();
+
+            // Show success message
+            const successMsg = document.getElementById('successMessage');
+            successMsg.classList.add('show');
+            setTimeout(() => {
+                successMsg.classList.remove('show');
+            }, 5000);
+
+            // Reset form
+            this.reset();
+        });
+
+        // --- Update Member Count ---
+        function updateMemberCount() {
+            const members = JSON.parse(localStorage.getItem('alumniMembers')) || [];
+            document.getElementById('memberCount').textContent = members.length;
+        }
+
+        // --- Load member count on page load ---
+        document.addEventListener('DOMContentLoaded', updateMemberCount);
+    </script>
+</body>
+</html>
